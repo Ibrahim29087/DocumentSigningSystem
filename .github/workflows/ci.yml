@@ -10,34 +10,44 @@ jobs:
   backend:
     runs-on: ubuntu-latest
     services:
-     mysql:
-      image: mysql:8
-      env:
-        MYSQL_ROOT_PASSWORD: rootpassword
-        MYSQL_DATABASE: document_signing_db
-        MYSQL_ROOT_HOST: '%'
-      ports:
-        - 3306:3306
-      options: >-
-        --health-cmd="mysqladmin ping"
-        --health-interval=10s
-        --health-timeout=5s
-        --health-retries=5
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: document_signing_db
+          MYSQL_ROOT_HOST: '%'
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root -prootpassword"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
     defaults:
-       run:
+      run:
         working-directory: DocumentSigningsystem
     env:
-      DB_URL: jdbc:mysql://localhost:3306/document_signing_db
+      DB_URL: jdbc:mysql://127.0.0.1:3306/document_signing_db?useSSL=false&allowPublicKeyRetrieval=true
       DB_USERNAME: root
       DB_PASSWORD: rootpassword
       JWT_SECRET: test-secret-key-for-ci-pipeline-only-not-for-production-use
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
+
+      - name: Wait for MySQL
+        run: |
+          for i in {1..30}; do
+            mysqladmin ping -h 127.0.0.1 -u root -prootpassword --silent && break
+            echo "Waiting for MySQL... ($i)"
+            sleep 2
+          done
+
       - name: Build and test
         run: mvn clean verify
 
