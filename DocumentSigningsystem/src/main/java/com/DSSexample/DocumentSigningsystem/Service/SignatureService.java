@@ -148,6 +148,9 @@ public class SignatureService {
 
         signatureEventRepository.save(event);
 
+        checkAndCompleteRequest(signer.getSignatureRequest(), signer.getSignatureRequest().getDocument());
+
+
         return mapToResponse(event);
     }
 
