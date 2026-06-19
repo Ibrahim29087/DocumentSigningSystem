@@ -10,7 +10,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import java.util.List;
 
 @RestController
@@ -42,6 +44,22 @@ public class DocumentController {
                 )
         );
     }
+
+        @GetMapping("/{id}/download")
+        public ResponseEntity<Resource> download(
+                @PathVariable String id,
+                @AuthenticationPrincipal UserDetails userDetails) {
+
+        // This also enforces ownership — throws "Access denied" if not the owner
+        DocumentResponse doc = documentService.getDocumentById(id, userDetails.getUsername());
+
+        Resource resource = fileStorageService.loadFileAsResource(doc.getFilePath());
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + doc.getFileName() + "\"")
+                .body(resource);
+        }
 
     @GetMapping("/my")
     public ResponseEntity<List<DocumentResponse>> getMyDocuments(
