@@ -15,7 +15,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/signature-requests")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class SignatureRequestController {
 
     private final SignatureRequestService signatureRequestService;
