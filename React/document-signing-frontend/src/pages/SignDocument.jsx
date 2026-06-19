@@ -71,6 +71,19 @@ const SignDocument = () => {
         await signDocument(signer)
     }
 
+    const handleView = async (documentId) => {
+        try {
+            const response = await api.get(`/api/documents/${documentId}/download`, {
+                responseType: 'blob'
+            })
+            const blob = new Blob([response.data], { type: 'application/pdf' })
+            const url = window.URL.createObjectURL(blob)
+            window.open(url, '_blank')
+        } catch (err) {
+            setError('Failed to load document preview')
+        }
+    }
+
     const signDocument = async (signer) => {
         setLoading(true)
         setError('')
@@ -215,8 +228,14 @@ const SignDocument = () => {
                                         </Button>
                                     </Box>
                                 </Box>
-                            ) : (
+                                ) : (
                                 <Box sx={{ display: 'flex', gap: 1 }}>
+                                    <Button
+                                        variant="outlined"
+                                        onClick={() => handleView(signer.documentId)}
+                                    >
+                                        View Document
+                                    </Button>
                                     <Button
                                         variant="contained"
                                         color="success"
