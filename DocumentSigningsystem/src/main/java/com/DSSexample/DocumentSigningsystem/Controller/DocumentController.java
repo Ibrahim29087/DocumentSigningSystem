@@ -50,8 +50,7 @@ public class DocumentController {
                 @PathVariable String id,
                 @AuthenticationPrincipal UserDetails userDetails) {
 
-        // This also enforces ownership — throws "Access denied" if not the owner
-        DocumentResponse doc = documentService.getDocumentById(id, userDetails.getUsername());
+        DocumentResponse doc = documentService.getDocumentForViewing(id, userDetails.getUsername());
 
         Resource resource = fileStorageService.loadFileAsResource(doc.getFilePath());
 
@@ -59,7 +58,7 @@ public class DocumentController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + doc.getFileName() + "\"")
                 .body(resource);
-        }
+}
 
     @GetMapping("/my")
     public ResponseEntity<List<DocumentResponse>> getMyDocuments(
