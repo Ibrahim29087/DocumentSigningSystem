@@ -1,10 +1,4 @@
-# ─────────────────────────────────────────────
-# Place this file at:
-#   DocumentSigningsystem/Dockerfile
-# (same level as pom.xml)
-# ─────────────────────────────────────────────
-
-# ── Stage 1: Build ──────────────────────────
+# ── Stage 1: Build 
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
 
@@ -17,7 +11,7 @@ RUN mvn dependency:go-offline -B
 COPY src ./src
 RUN mvn clean package -DskipTests -B
 
-# ── Stage 2: Run ─────────────────────────────
+# ── Stage 2: Run 
 # Slim JRE-only image — much smaller than a full JDK
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
