@@ -84,6 +84,25 @@ const SignDocument = () => {
         }
     }
 
+    const handleDecline = async (signer) => {
+        if (!window.confirm(`Are you sure you want to decline signing "${signer.documentTitle}"?`)) {
+            return
+        }
+        setLoading(true)
+        setError('')
+        try {
+            await api.post(`/api/signatures/decline/${signer.signerId}`, null, {
+                params: { remarks: 'Declined via Document Signing System' }
+            })
+            setSuccess(`Document "${signer.documentTitle}" declined.`)
+            fetchPendingSignatures()
+        } catch (err) {
+            setError(err.response?.data?.error || 'Decline failed')
+        } finally {
+            setLoading(false)
+        }
+    }
+
     const signDocument = async (signer) => {
         setLoading(true)
         setError('')
@@ -228,7 +247,7 @@ const SignDocument = () => {
                                         </Button>
                                     </Box>
                                 </Box>
-                                ) : (
+                            ) : (
                                 <Box sx={{ display: 'flex', gap: 1 }}>
                                     <Button
                                         variant="outlined"
@@ -247,7 +266,8 @@ const SignDocument = () => {
                                     <Button
                                         variant="outlined"
                                         color="error"
-                                        onClick={() => navigate('/dashboard')}
+                                        onClick={() => handleDecline(signer)}
+                                        disabled={loading}
                                     >
                                         Decline
                                     </Button>
