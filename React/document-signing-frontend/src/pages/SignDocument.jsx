@@ -71,6 +71,38 @@ const SignDocument = () => {
         await signDocument(signer)
     }
 
+    const handleView = async (documentId) => {
+        try {
+            const response = await api.get(`/api/documents/${documentId}/download`, {
+                responseType: 'blob'
+            })
+            const blob = new Blob([response.data], { type: 'application/pdf' })
+            const url = window.URL.createObjectURL(blob)
+            window.open(url, '_blank')
+        } catch (err) {
+            setError('Failed to load document preview')
+        }
+    }
+
+    const handleDecline = async (signer) => {
+        if (!window.confirm(`Are you sure you want to decline signing "${signer.documentTitle}"?`)) {
+            return
+        }
+        setLoading(true)
+        setError('')
+        try {
+            await api.post(`/api/signatures/decline/${signer.signerId}`, null, {
+                params: { remarks: 'Declined via Document Signing System' }
+            })
+            setSuccess(`Document "${signer.documentTitle}" declined.`)
+            fetchPendingSignatures()
+        } catch (err) {
+            setError(err.response?.data?.error || 'Decline failed')
+        } finally {
+            setLoading(false)
+        }
+    }
+
     const signDocument = async (signer) => {
         setLoading(true)
         setError('')
@@ -218,6 +250,12 @@ const SignDocument = () => {
                             ) : (
                                 <Box sx={{ display: 'flex', gap: 1 }}>
                                     <Button
+                                        variant="outlined"
+                                        onClick={() => handleView(signer.documentId)}
+                                    >
+                                        View Document
+                                    </Button>
+                                    <Button
                                         variant="contained"
                                         color="success"
                                         onClick={() => handleSign(signer)}
@@ -228,7 +266,8 @@ const SignDocument = () => {
                                     <Button
                                         variant="outlined"
                                         color="error"
-                                        onClick={() => navigate('/dashboard')}
+                                        onClick={() => handleDecline(signer)}
+                                        disabled={loading}
                                     >
                                         Decline
                                     </Button>

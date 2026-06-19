@@ -5,6 +5,7 @@ import com.DSSexample.DocumentSigningsystem.Entity.Document;
 import com.DSSexample.DocumentSigningsystem.Entity.Document.DocumentStatus;
 import com.DSSexample.DocumentSigningsystem.Entity.User;
 import com.DSSexample.DocumentSigningsystem.Repository.DocumentRepository;
+import com.DSSexample.DocumentSigningsystem.Repository.SignerRepository;
 import com.DSSexample.DocumentSigningsystem.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,8 @@ public class DocumentService {
 
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
+    private final SignerRepository signerRepository;  
+
 
     // Upload new document
     public DocumentResponse uploadDocument(
@@ -43,6 +46,25 @@ public class DocumentService {
 
         return mapToResponse(document);
     }
+
+
+        public DocumentResponse getDocumentForViewing(String documentId, String userEmail) {
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(() -> new RuntimeException("Document not found"));
+
+        boolean isOwner = document.getOwner().getId().equals(user.getId());
+        boolean isSigner = signerRepository.existsBySignatureRequest_Document_IdAndUser_Id(documentId, user.getId());
+
+        if (!isOwner && !isSigner) {
+                throw new RuntimeException("Access denied");
+        }
+
+        return mapToResponse(document);
+      }
 
     // Get all documents for logged in user
     public List<DocumentResponse> getMyDocuments(String ownerEmail) {

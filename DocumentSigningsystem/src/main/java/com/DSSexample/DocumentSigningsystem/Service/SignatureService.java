@@ -41,7 +41,6 @@ public class SignatureService {
     // Sign a document
     public SignatureEventResponse signDocument(SignDocumentRequest request, String signerEmail) {
 
-
         // Fetch signer user
         User signerUser = userRepository.findByEmail(signerEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -67,8 +66,7 @@ public class SignatureService {
         boolean isValid = verifySignature(
                 document.getFileHash(),
                 request.getSignatureHash(),
-                signerUser.getPublicKey()
-        );
+                signerUser.getPublicKey());
 
         if (!isValid) {
             throw new RuntimeException("Invalid signature — verification failed");
@@ -201,7 +199,7 @@ public class SignatureService {
             document.setStatus(DocumentStatus.COMPLETED);
         } else if (anyDeclined) {
             signatureRequest.setStatus(RequestStatus.CANCELLED);
-            document.setStatus(DocumentStatus.CANCELLED);
+            document.setStatus(DocumentStatus.DRAFT);
         } else {
             signatureRequest.setStatus(RequestStatus.IN_PROGRESS);
             document.setStatus(DocumentStatus.IN_PROGRESS);

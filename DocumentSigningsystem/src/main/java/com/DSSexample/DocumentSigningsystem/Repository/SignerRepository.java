@@ -6,6 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface  SignerRepository extends JpaRepository<Signer,String> {
+
+    boolean existsBySignatureRequest_Document_IdAndUser_Id(String documentId, String userId);
+    
     List<Signer> findBySignatureRequestId(String signatureRequestId);
 
     List<Signer> findByUserId(String userId);
