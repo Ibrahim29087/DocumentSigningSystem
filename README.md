@@ -1,8 +1,6 @@
-# Document Signing System
+### Document Signing System
 
-A full-stack web application that allows users to upload documents, request electronic signatures from other users, preview documents, and sign them digitally using SHA-based hashing and RSA key pairs — with status automatically updated throughout the process. The cryptographic signature also allows the system to detect if a document has been tampered with after signing.
----
-
+<sub>A full-stack web application that allows users to upload documents, request electronic signatures from other users, preview documents, and sign them digitally using SHA-based hashing and RSA key pairs — with status automatically updated throughout the process. The cryptographic signature also allows the system to detect if a document has been tampered with after signing.</sub>
 ##  Features
 
 -  **User Authentication** — Register/login with JWT-based stateless auth
